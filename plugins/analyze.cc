@@ -2,8 +2,9 @@
 #include "TTreeReaderArray.h"
 
 #include "PlotManager.h"
-#include "ProtonKinematics.h"
+#include "ArgumentsParser.h"
 
+#include "ProtonKinematics.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -12,8 +13,10 @@ using namespace std;
 int
 main(int argc, char* argv[])
 {
-  if (argc<2) { cerr << "Usage: " << argv[0] << " [input file] <output file>" << endl; return -1; }
-  const char* output = (argc>2) ? argv[2] : "output.root";
+  ArgumentsParser arg(argc, argv);
+  if (!arg.HasArgument("--input")) { arg.PrintUsage(); return -1; }
+  const char* output = (arg.HasArgument("--output")) ? arg.GetOutput() : "output.root";
+  if (arg.HasArgument("--alca-file")) {;}
 
   TFile in(argv[1]);
 
