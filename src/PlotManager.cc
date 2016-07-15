@@ -24,6 +24,32 @@ PlotManager::AddCategory(const char* cat_name, const char* parent)
 }
 
 void
+PlotManager::AddDouble(const char* name, const char* cat_path)
+{
+  TDirectory* dir = fFile->GetDirectory(cat_path);
+  if (!dir) { std::cerr << "ERROR failed to retrieve the parent category " << cat_path << " to build double leaf " << name << std::endl; return; }
+  TVectorT<double> tmp(1);
+  dir->WriteTObject(&tmp, name);
+}
+
+TVectorT<double>*
+PlotManager::GetDouble(const char* name, const char* cat_path)
+{
+  TDirectory* dir = fFile->GetDirectory(cat_path);
+  if (!dir) { std::cerr << "ERROR failed to retrieve the parent category " << cat_path << " to retrieve double leaf " << name << std::endl; return 0; }
+  TVectorT<double>* tmp = 0; dir->GetObject(name, tmp);
+  return tmp;
+}
+
+void
+PlotManager::SetDouble(double value, const char* name, const char* cat_path)
+{
+  TVectorT<double>* tmp = GetDouble(name, cat_path);
+  if (!tmp) { std::cerr << "ERROR failed to retrieve the double leaf " << name << " in category " << cat_path << std::endl; return; }
+  tmp->SetElements(&value);
+}
+
+void
 PlotManager::AddTH1(const char* name, const char* title, unsigned int nbins, double min, double max, const char* cat_path, const char* xlabel, const char* ylabel)
 {
   TDirectory* dir = fFile->GetDirectory(cat_path);
@@ -79,3 +105,30 @@ PlotManager::FillTH2(double value_x, double value_y, const char* name, const cha
   if (!h_tmp) { std::cerr << "ERROR failed to retrieve the 1D histogram " << name << " in category " << cat_path << std::endl; return; }
   h_tmp->Fill(value_x, value_y, weight);
 }
+
+void
+PlotManager::AddTTree(const char* name, const char* title, const char* cat_path)
+{
+  TDirectory* dir = fFile->GetDirectory(cat_path);
+  if (!dir) { std::cerr << "ERROR failed to retrieve the parent category " << cat_path << " to build tree " << name << std::endl; return; }
+  TTree t_tmp(name, title);
+  dir->WriteTObject(&t_tmp);
+}
+
+TTree*
+PlotManager::GetTTree(const char* name, const char* cat_path)
+{
+  TDirectory* dir = fFile->GetDirectory(cat_path);
+  if (!dir) { std::cerr << "ERROR failed to retrieve the parent category " << cat_path << " to retrieve tree " << name << std::endl; return 0; }
+  TTree* t_tmp = 0; dir->GetObject(name, t_tmp);
+  return t_tmp;
+}
+
+void
+PlotManager::FillTTree(const char* name, const char* cat_path)
+{
+  TTree* t_tmp = GetTTree(name, cat_path);
+  if (!t_tmp) { std::cerr << "ERROR failed to retrieve the tree " << name << " in category " << cat_path << std::endl; return; }
+  t_tmp->Fill();
+}
+

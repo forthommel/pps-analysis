@@ -16,7 +16,17 @@ ROOTINC = `root-config --incdir`
 CPP_FILES = $(wildcard $(SRC_DIR)*.cc)
 LIB_FILES = $(patsubst $(SRC_DIR)%.cc,$(OBJ_DIR)%.o,$(CPP_FILES))
 
+all: $(BIN_DIR)analyze $(BIN_DIR)CentralSystem
+
 $(BIN_DIR)analyze: $(PLG_DIR)analyze.o $(LIB_FILES) | $(BIN_DIR)
+	@echo "Linking $@..."
+	@$(CC) $^ -o $@ $(LDFLAGS) $(ROOT_LDFLAGS)
+
+$(BIN_DIR)AlCa: $(PLG_DIR)AlCa.o $(LIB_FILES) | $(BIN_DIR)
+	@echo "Linking $@..."
+	@$(CC) $^ -o $@ $(LDFLAGS) $(ROOT_LDFLAGS)
+
+$(BIN_DIR)CentralSystem: $(PLG_DIR)CentralSystem.o $(LIB_FILES) | $(BIN_DIR)
 	@echo "Linking $@..."
 	@$(CC) $^ -o $@ $(LDFLAGS) $(ROOT_LDFLAGS)
 
