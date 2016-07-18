@@ -23,6 +23,16 @@ PlotManager::AddCategory(const char* cat_name, const char* parent)
   if (!dir->mkdir(cat_name)) { std::cerr << "ERROR failed to create a category " << (char*)cat_name << " with parent " << (char*)parent << std::endl; return; }
 }
 
+bool
+PlotManager::HasCategory(const char* path_name) const
+{
+  TDirectory* dir = fFile->GetDirectory(path_name);
+  if (!dir) return false;
+  if (!dir->IsFolder()) return false;
+  if (!dir->IsWritable()) return false;
+  return true;
+}
+
 void
 PlotManager::AddDouble(const char* name, const char* cat_path)
 {

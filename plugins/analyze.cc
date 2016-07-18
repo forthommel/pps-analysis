@@ -3,6 +3,7 @@
 
 #include "PlotManager.h"
 #include "ArgumentsParser.h"
+#include "AlCaReader.h"
 
 #include "ProtonKinematics.h"
 #include "Utils.h"
@@ -17,11 +18,13 @@ main(int argc, char* argv[])
   if (!arg.HasArgument("--input")) { arg.PrintUsage(); return -1; }
   const char* output = (arg.HasArgument("--output")) ? arg.GetOutput() : "output.root";
   if (arg.HasArgument("--alca-file")) {;}
+  const unsigned int num_sigma = 2;
 
-  TFile in(argv[1]);
+  TFile in(arg.GetInput());
 
   // start by booking the values we want to retrieve from tree
   TTreeReader tr("ntp1", &in);
+  TTreeReaderValue<int> Run(tr, "Run");
   TTreeReaderValue<int> nHLT(tr, "nHLT");
   //TTreeReaderArray<int> HLT_Accept(tr, "HLT_Accept");
   //TTreeReaderArray<int> HLT_Accept(tr, "HLT_Accept.HLT_Prescl"); //FIXME workaround!!!
@@ -34,6 +37,9 @@ main(int argc, char* argv[])
 
   PlotManager plt(output);
   if (!plt.IsValid()) return -1;
+
+  AlCaReader acr;
+  double mean_x, sigma_x, mean_y, sigma_y;
 
   // define the variables to be plotted
   plt.AddCategory("presel_level");
@@ -72,8 +78,19 @@ main(int argc, char* argv[])
   plt.AddCategory("station_far", "presel_level/arm_right");
   plt.AddTH2("prot_tracks_origin", "Tracks origin hitmap", 250, 0., 25., 300, -15., 15., "presel_level/arm_right/station_far", "x", "y");
 
-  /*plt.AddCategory("elastic_level");
+  plt.AddCategory("skimmed_level");
+  plt.AddCategory("arm_left", "skimmed_level");
+  plt.AddCategory("station_near", "skimmed_level/arm_left");
+  plt.AddTH2("prot_tracks_origin", "Tracks origin hitmap (left arm)", 250, 0., 25., 300, -15., 15., "skimmed_level/arm_left/station_near", "x", "y");
+  plt.AddCategory("station_far", "skimmed_level/arm_left");
+  plt.AddTH2("prot_tracks_origin", "Tracks origin hitmap (left arm)", 250, 0., 25., 300, -15., 15., "skimmed_level/arm_left/station_far", "x", "y");
+  plt.AddCategory("arm_right", "skimmed_level");
+  plt.AddCategory("station_near", "skimmed_level/arm_right");
+  plt.AddTH2("prot_tracks_origin", "Tracks origin hitmap (right arm)", 250, 0., 25., 300, -15., 15., "skimmed_level/arm_right/station_near", "x", "y");
+  plt.AddCategory("station_far", "skimmed_level/arm_right");
+  plt.AddTH2("prot_tracks_origin", "Tracks origin hitmap (right arm)", 250, 0., 25., 300, -15., 15., "skimmed_level/arm_right/station_far", "x", "y");
 
+  /*plt.AddCategory("elastic_level");
   plt.AddCategory("elastic_tight_level");*/
 
   unsigned int i = 0;
@@ -118,18 +135,32 @@ main(int argc, char* argv[])
     plt.FillTH2(num_left, num_right, "num_prot_tracks_vs_arm", "presel_level");
 
     if (rph.BothArmsLeft()) {
-      plt.FillTH2(rph.LN.x, rph.LF.x, "prot_near_far_corr_x", "presel_level/arm_left");
-      plt.FillTH2(rph.LN.y, rph.LF.y, "prot_near_far_corr_y", "presel_level/arm_left");
-      plt.FillTH1(rph.LN.x-rph.LF.x, "prot_near_far_dist_x", "presel_level/arm_left");
-      plt.FillTH1(rph.LN.y-rph.LF.y, "prot_near_far_dist_y", "presel_level/arm_left");
-      plt.FillTH2(rph.LN.x-rph.LF.x, rph.LN.y-rph.LF.y, "prot_near_far_dist_xy", "presel_level/arm_left");
+      acr.GetNFLeftCorrX(*Run, &mean_x, &sigma_x);
+      acr.GetNFLeftCorrY(*Run, &mean_y, &sigma_y);
+      if ((rph.LN.x-rph.LF.x>=mean_x-num_sigma*sigma_x and rph.LN.x-rph.LF.x<=mean_x+num_sigma*sigma_x)
+      and (rph.LN.y-rph.LF.y>=mean_y-num_sigma*sigma_y and rph.LN.y-rph.LF.y<=mean_y+num_sigma*sigma_y)) {
+        plt.FillTH2(rph.LN.x, rph.LF.x, "prot_near_far_corr_x", "presel_level/arm_left");
+        plt.FillTH2(rph.LN.y, rph.LF.y, "prot_near_far_corr_y", "presel_level/arm_left");
+        plt.FillTH1(rph.LN.x-rph.LF.x, "prot_near_far_dist_x", "presel_level/arm_left");
+        plt.FillTH1(rph.LN.y-rph.LF.y, "prot_near_far_dist_y", "presel_level/arm_left");
+        plt.FillTH2(rph.LN.x-rph.LF.x, rph.LN.y-rph.LF.y, "prot_near_far_dist_xy", "presel_level/arm_left");
+        plt.FillTH2(rph.LN.x, rph.LN.y, "prot_tracks_origin", "skimmed_level/arm_left/station_near");
+        plt.FillTH2(rph.LF.x, rph.LF.y, "prot_tracks_origin", "skimmed_level/arm_left/station_far");
+      }
     }
     if (rph.BothArmsRight()) {
-      plt.FillTH2(rph.RN.x, rph.RF.x, "prot_near_far_corr_x", "presel_level/arm_right");
-      plt.FillTH2(rph.RN.y, rph.RF.y, "prot_near_far_corr_y", "presel_level/arm_right");
-      plt.FillTH1(rph.RN.x-rph.RF.x, "prot_near_far_dist_x", "presel_level/arm_right");
-      plt.FillTH1(rph.RN.y-rph.RF.y, "prot_near_far_dist_y", "presel_level/arm_right");
-      plt.FillTH2(rph.RN.x-rph.RF.x, rph.RN.y-rph.RF.y, "prot_near_far_dist_xy", "presel_level/arm_right");
+      acr.GetNFRightCorrX(*Run, &mean_x, &sigma_x);
+      acr.GetNFRightCorrY(*Run, &mean_y, &sigma_y);
+      if ((rph.RN.x-rph.RF.x>=mean_x-num_sigma*sigma_x and rph.RN.x-rph.RF.x<=mean_x+num_sigma*sigma_x)
+      and (rph.RN.y-rph.RF.y>=mean_y-num_sigma*sigma_y and rph.RN.y-rph.RF.y<=mean_y+num_sigma*sigma_y)) {
+        plt.FillTH2(rph.RN.x, rph.RF.x, "prot_near_far_corr_x", "presel_level/arm_right");
+        plt.FillTH2(rph.RN.y, rph.RF.y, "prot_near_far_corr_y", "presel_level/arm_right");
+        plt.FillTH1(rph.RN.x-rph.RF.x, "prot_near_far_dist_x", "presel_level/arm_right");
+        plt.FillTH1(rph.RN.y-rph.RF.y, "prot_near_far_dist_y", "presel_level/arm_right");
+        plt.FillTH2(rph.RN.x-rph.RF.x, rph.RN.y-rph.RF.y, "prot_near_far_dist_xy", "presel_level/arm_right");
+        plt.FillTH2(rph.RN.x, rph.RN.y, "prot_tracks_origin", "skimmed_level/arm_right/station_near");
+        plt.FillTH2(rph.RF.x, rph.RF.y, "prot_tracks_origin", "skimmed_level/arm_right/station_far");
+      }
     }
     //if (!HLT_Accept[0] or !HLT_Accept[1]) continue; //FIXME
     //if (HLT_Prescl[0]!=1. or HLT_Prescl[1]!=1.) continue; //FIXME

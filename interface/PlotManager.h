@@ -21,6 +21,7 @@ class PlotManager
   }
 
   void AddCategory(const char* cat_name, const char* parent="/");
+  bool HasCategory(const char* path_name) const;
 
   void AddDouble(const char* name, const char* cat_path="/");
   TVectorT<double>* GetDouble(const char* name, const char* cat_path="/");

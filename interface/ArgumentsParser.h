@@ -13,15 +13,15 @@ class ArgumentsParser{
     for (int i=1; i < argc; ++i) fTokens.push_back(std::string(argv[i]));
   }
 
-  inline const char* GetArgument(const std::string &option) const {
+  inline const char* Get(const std::string &option) const {
     std::vector<std::string>::const_iterator itr;
     itr = std::find(fTokens.begin(), fTokens.end(), option);
     if (itr!=fTokens.end() and ++itr!=fTokens.end()) return itr->c_str();
     return "";
   }
 
-  inline const char* GetInput() const { return GetArgument("--input"); }
-  inline const char* GetOutput() const { return GetArgument("--output"); }
+  inline const char* GetInput() const { return Get("--input"); }
+  inline const char* GetOutput() const { return Get("--output"); }
 
   inline bool HasArgument(const std::string &option) const {
     return std::find(fTokens.begin(), fTokens.end(), option)!=fTokens.end();
