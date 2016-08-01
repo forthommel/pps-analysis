@@ -22,6 +22,10 @@ $(BIN_DIR)analyze: $(PLG_DIR)analyze.o $(LIB_FILES) | $(BIN_DIR)
 	@echo "Linking $@..."
 	@$(CC) $^ -o $@ $(LDFLAGS) $(ROOT_LDFLAGS)
 
+$(BIN_DIR)MCAnalysis: $(PLG_DIR)MCAnalysis.o $(LIB_FILES) | $(BIN_DIR)
+	@echo "Linking $@..."
+	@$(CC) $^ -o $@ $(LDFLAGS) $(ROOT_LDFLAGS)
+
 $(BIN_DIR)AlCa: $(PLG_DIR)AlCa.o $(LIB_FILES) | $(BIN_DIR)
 	@echo "Linking $@..."
 	@$(CC) $^ -o $@ $(LDFLAGS) $(ROOT_LDFLAGS)
