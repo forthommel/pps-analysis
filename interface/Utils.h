@@ -28,7 +28,7 @@ double DeltaR(double eta1, double phi1, double eta2, double phi2)
   double dphi = phi1-phi2;
   while (dphi<=-TMath::Pi()) dphi += 2.*TMath::Pi();
   while (dphi>= TMath::Pi()) dphi -= 2.*TMath::Pi();
-  std::cout << __PRETTY_FUNCTION__ << " dphi=" << dphi << ", deta=" << eta1-eta2 << " ---> " << sqrt(pow(eta1-eta2, 2)+pow(dphi, 2)) << std::endl;
+  //std::cout << __PRETTY_FUNCTION__ << " dphi=" << dphi << ", deta=" << eta1-eta2 << " ---> " << sqrt(pow(eta1-eta2, 2)+pow(dphi, 2)) << std::endl;
   return sqrt(pow(eta1-eta2, 2)+pow(dphi, 2));
 }
 
