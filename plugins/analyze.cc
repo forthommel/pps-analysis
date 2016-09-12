@@ -29,11 +29,13 @@ main(int argc, char* argv[])
   //TTreeReaderArray<int> HLT_Accept(tr, "HLT_Accept");
   //TTreeReaderArray<int> HLT_Accept(tr, "HLT_Accept.HLT_Prescl"); //FIXME workaround!!!
   TTreeReaderArray<int> HLT_Prescl(tr, "HLT_Prescl");
-  TTreeReaderValue<int> nLocalProtCand(tr, "nLocalProtCand");
+  /*TTreeReaderValue<int> nLocalProtCand(tr, "nLocalProtCand");
   TTreeReaderArray<double> LocalProtCand_x(tr, "LocalProtCand_x");
   TTreeReaderArray<double> LocalProtCand_y(tr, "LocalProtCand_y");
   TTreeReaderArray<int> LocalProtCand_arm(tr, "LocalProtCand_arm");
-  TTreeReaderArray<int> LocalProtCand_side(tr, "LocalProtCand_side");
+  TTreeReaderArray<int> LocalProtCand_side(tr, "LocalProtCand_side");*/
+  TTreeReaderValue<int> nProtonCand(tr, "nProtonCand");
+  TTreeReaderArray<double> ProtonCand_xi(tr, "ProtonCand_xi");
 
   PlotManager plt(output);
   if (!plt.IsValid()) return -1;
